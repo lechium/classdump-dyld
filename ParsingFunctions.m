@@ -105,13 +105,13 @@
             	LOG_FILE_LINE;
             	NSString *textToPut=[textFound substringFromIndex:8];
                 NSInteger weirdIndex = textToPut.length-1-(@"ficificifloc".length+1);
-                NSLog(@"weirdIndex: %lu lenght:%lu", weirdIndex, textToPut.length);
+                //NSLog(@"weirdIndex: %lu lenght:%lu", weirdIndex, textToPut.length);
                 if (weirdIndex < textToPut.length){
                     textToPut=[textToPut substringToIndex:weirdIndex];
-                    NSLog(@"textToPut: %@", textToPut);
+                    //NSLog(@"textToPut: %@", textToPut);
                 }
             	text=[text stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@",textFound] withString:[NSString stringWithFormat:@"(%@)",textToPut]];
-                NSLog(@"text: %@", text);
+                //NSLog(@"text: %@", text);
         	    *stop=YES;
             }
         }];
