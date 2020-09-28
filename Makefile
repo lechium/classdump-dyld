@@ -6,7 +6,8 @@ export SDKVERSION=11.0
 export ARCHS= arm64
 #export ARCHS=x86_64 
 include theos/makefiles/common.mk
-THEOS_DEVICE_IP=guest-room.local
+#THEOS_DEVICE_IP=guest-room.local
+THEOS_DEVICE_IP=192.168.0.39
 TOOL_NAME = classdump-dyld
 classdump-dyld_FILES = main.mm
 classdump-dyld_FRAMEWORKS = CoreFoundation Foundation

@@ -145,6 +145,7 @@ NSString * propertyLineGenerator(NSString *attributes,NSString *name){
 		type=[type stringByAppendingString:@" *"] ;
 		NSString *classFoundInProperties=[type stringByReplacingOccurrencesOfString:@" *" withString:@""];
 		if (![classesInClass containsObject:classFoundInProperties] && [classFoundInProperties rangeOfString:@"<"].location==NSNotFound){
+            LOG_FILE_LINE;
 			[classesInClass addObject:classFoundInProperties];
 		}
 		if ([type rangeOfString:@"<"].location!=NSNotFound){
@@ -199,19 +200,21 @@ NSString * propertyLineGenerator(NSString *attributes,NSString *name){
 				if ([attr isEqual:@"W"]){ translatedProperty = @"__weak"; }
 				if ([attr isEqual:@"P"]){ translatedProperty = @"t<encoding>";}
 				 
-			 
+			 LOG_FILE_LINE;
 			[newPropsArray addObject:translatedProperty];
 		}
 			
 		if ([attr rangeOfString:@"G"].location==0){
 			attr=[attr  stringByReplacingCharactersInRange:NSMakeRange(0,1) withString:@""] ;
 			attr=[NSString stringWithFormat:@"getter=%@",attr];
+            LOG_FILE_LINE;
 			[newPropsArray addObject:attr];
 		}
 			
 		if ([attr rangeOfString:@"S"].location==0){
 			attr=[attr  stringByReplacingCharactersInRange:NSMakeRange(0,1) withString:@""] ;
 			attr=[NSString stringWithFormat:@"setter=%@",attr];
+            LOG_FILE_LINE;
 			[newPropsArray addObject:attr];
 		}
 			
@@ -272,6 +275,7 @@ static NSMutableArray * propertiesArrayFromString(NSString *propertiesString){
 		
 		[typesAndNames setObject:propertyTypeFound forKey:@"type"];
 		[typesAndNames setObject:propertyNameFound forKey:@"name"];
+        LOG_FILE_LINE;
 		[typesAndNamesArray addObject:typesAndNames];
 
 	}
@@ -330,6 +334,7 @@ NSString * buildProtocolFile(Protocol *currentProtocol){
 				type=[type stringByAppendingString:@" *"] ;
 				NSString *classFoundInProperties=[type stringByReplacingOccurrencesOfString:@" *" withString:@""];
 				if (![classesInProtocol containsObject:classFoundInProperties] && [classFoundInProperties rangeOfString:@"<"].location==NSNotFound){
+                    LOG_FILE_LINE;
 					[classesInProtocol addObject:classFoundInProperties];
 				}
 			}
@@ -511,6 +516,7 @@ static NSString *representedStructFromStruct(NSString *inStruct,NSString *inName
 						NSString *stringToPut=representedStructFromStruct([NSString stringWithFormat:@"{%@}",[types substringWithRange:[result rangeAtIndex:i]]],nil,NO,0);
 						blParts=[types stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"{%@}",[types substringWithRange:[result rangeAtIndex:i]]] withString:stringToPut];
 						if ([blParts rangeOfString:@"{"].location==NSNotFound){
+                            LOG_FILE_LINE;
 							[strctArray addObject:stringToPut];
 						}
 						break;
@@ -542,6 +548,7 @@ static NSString *representedStructFromStruct(NSString *inStruct,NSString *inName
 							[alreadyFoundStructs addObject:@"void*"];
 						}
 						else{
+                            LOG_FILE_LINE;
 							[alreadyFoundStructs addObject:str];
 						}
 						int replaceLocation=[types rangeOfString:str].location;
@@ -570,7 +577,7 @@ static NSString *representedStructFromStruct(NSString *inStruct,NSString *inName
 						NSRange range=[types rangeOfString:stringToPut];
 						
 						blParts2=[types stringByReplacingCharactersInRange:NSMakeRange(range.location,range.length) withString:@"~"];
-						
+                            LOG_FILE_LINE;
 							[arrArray addObject:stringToPut];
 						
 						*stop=1;
@@ -597,6 +604,7 @@ static NSString *representedStructFromStruct(NSString *inStruct,NSString *inName
 					for (int i = 1; i< [result numberOfRanges] ; i++) {	
 						NSString *stringToPut=[types substringWithRange:[result rangeAtIndex:i]];
 						blParts3=[types stringByReplacingOccurrencesOfString:[types substringWithRange:[result rangeAtIndex:i]] withString:@"§"];
+                        LOG_FILE_LINE;
 						[bitArray addObject:stringToPut];
 						break;
 					}
@@ -721,6 +729,7 @@ static NSString *representedStructFromStruct(NSString *inStruct,NSString *inName
 					int nextlocation=[asubstring rangeOfString:@"\""].location;
 					asubstring=[asubstring substringWithRange:NSMakeRange(0,nextlocation)];
 					if ([classesInStructs indexOfObject:asubstring]==NSNotFound){
+                        LOG_FILE_LINE;
 						[classesInStructs addObject:asubstring];
 					}
 
@@ -811,6 +820,7 @@ static NSString *representedStructFromStruct(NSString *inStruct,NSString *inName
 		
 		
 		if (!found && !reallyIsFlagInIvars){
+            LOG_FILE_LINE;
 			[allStructsFound addObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:representation,@"representation",structName,@"name",types,@"types",nil]];	
 		}
 		
@@ -954,6 +964,7 @@ NSString *representedUnionFromUnion(NSString *inUnion){
 				int nextlocation=[asubstring rangeOfString:@"\""].location;
 				asubstring=[asubstring substringWithRange:NSMakeRange(0,nextlocation)];
 				if ([classesInStructs indexOfObject:asubstring]==NSNotFound){
+                    LOG_FILE_LINE;
 					[classesInStructs addObject:asubstring];
 				}
 			
@@ -1015,7 +1026,7 @@ NSString *representedUnionFromUnion(NSString *inUnion){
 			}
 		}
 	}
-	
+	LOG_FILE_LINE;
 	[allStructsFound addObject:[NSDictionary dictionaryWithObjectsAndKeys:representation,@"representation",unionName,@"name",types,@"types",nil]];
 	
 	return unionName!=nil ? unionName : inUnion;
@@ -1114,6 +1125,7 @@ NSString * commonTypes(NSString *atype,NSString **inName,BOOL inIvarList){
     	        	for (int i = 1; i< [result numberOfRanges] ; i++) {
     	        		NSString *foundString=[tempString substringWithRange:[result rangeAtIndex:i]];
 	    	        	tempString=[tempString stringByReplacingOccurrencesOfString:foundString withString:@""];
+                        LOG_FILE_LINE;
     	    	        [numberOfArray addObject:foundString]; //e.g. [2] or [100c]
         	         	break;
             		}
@@ -1184,6 +1196,7 @@ NSString * commonTypes(NSString *atype,NSString **inName,BOOL inIvarList){
 
 		if (!found){
 			writeString=[writeString stringByAppendingString:[NSString stringWithFormat:@"%@Ref;\n\n",representedStructFromStruct(atype,nil,0,NO)]];
+            LOG_FILE_LINE;
 			[allStructsFound addObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObject:@""],@"types",writeString,@"representation",atype,@"name",nil]];
 		}
 
