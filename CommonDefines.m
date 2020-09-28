@@ -14,9 +14,9 @@
 #include <mach-o/nlist.h>
 #include <mach-o/dyld_images.h>
 
-//#define LOG_FILE_LINE NSLog(@"[%@ at %i]", [[NSString stringWithUTF8String:__FILE__] lastPathComponent], __LINE__);
+#define LOG_FILE_LINE NSLog(@"[%@ at %i]", [[NSString stringWithUTF8String:__FILE__] lastPathComponent], __LINE__);
 
-#define LOG_FILE_LINE
+//#define LOG_FILE_LINE
 
 static BOOL addHeadersFolder=NO;
 static BOOL shouldImportStructs=0;

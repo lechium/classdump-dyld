@@ -141,7 +141,7 @@ static void list_dir(const char *dir_name,BOOL writeToDisk,NSString *outputDir,B
             break;
         }
         
-        printf("  Scanning dir: %s...",dir_name); 
+        printf("  Scanning dir: %s...",dir_name);
         printf("\n\033[F\033[J");
         
         while  (entry && (entry->d_type & DT_DIR) && ( locationOfString(dir_name,[outputDir UTF8String])==0 ||  ((locationOfString(dir_name,"/private/var")==0  || locationOfString(dir_name,"/var")==0 || locationOfString(dir_name,"//var")==0 || locationOfString(dir_name,"//private/var")==0) && (skipApplications || (!skipApplications && !strstr(dir_name,"Application")))) || locationOfString(dir_name,"//dev")==0 || locationOfString(dir_name,"//bin")==0 ||  locationOfString(dir_name,"/dev")==0 || locationOfString(dir_name,"/bin")==0 )) {
@@ -169,7 +169,7 @@ static void list_dir(const char *dir_name,BOOL writeToDisk,NSString *outputDir,B
                 NSString *imageWithoutLastPart=[imageToPass stringByDeletingLastPathComponent];
                 
                 if ([[imageWithoutLastPart lastPathComponent] rangeOfString:@".app"].location!=NSNotFound  || [[imageWithoutLastPart lastPathComponent] rangeOfString:@".framework"].location!=NSNotFound || [[imageWithoutLastPart lastPathComponent] rangeOfString:@".bundle"].location!=NSNotFound){
-                    NSString *skipString=[imageWithoutLastPart lastPathComponent]; 
+                    NSString *skipString=[imageWithoutLastPart lastPathComponent];
                     //skipString=[skipString stringByDeletingPathExtension];
                     skipString=[skipString stringByReplacingOccurrencesOfString:@".framework" withString:@""];
                     skipString=[skipString stringByReplacingOccurrencesOfString:@".bundle" withString:@""];
@@ -184,7 +184,7 @@ static void list_dir(const char *dir_name,BOOL writeToDisk,NSString *outputDir,B
                 
                 else{
                     
-                    parseImage((char *)[imageToPass UTF8String ],writeToDisk,outputDir,getSymbols,recursive,YES,simpleHeader,skipAlreadyFound,skipApplications);	
+                    parseImage((char *)[imageToPass UTF8String ],writeToDisk,outputDir,getSymbols,recursive,YES,simpleHeader,skipAlreadyFound,skipApplications);
                 }
             }
             
@@ -276,7 +276,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
         [xdd drain];
         return 5;
     }
-    LOG_FILE_LINE;
+    //LOG_FILE_LINE;
     NSString *imageEnd=[[NSString stringWithCString:image encoding:NSUTF8StringEncoding] lastPathComponent];
     imageEnd=[imageEnd stringByReplacingOccurrencesOfString:@".framework/" withString:@""];
     imageEnd=[imageEnd stringByReplacingOccurrencesOfString:@".framework" withString:@""];
@@ -321,11 +321,11 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                 NSString *lastComponent=[imageString lastPathComponent];
                 CDLog(@"lastComponent: %@", lastComponent);
                 if ([lastComponent rangeOfString:@".framework"].location==NSNotFound && [lastComponent rangeOfString:@".bundle"].location==NSNotFound && [lastComponent rangeOfString:@".app"].location==NSNotFound){
-                    if (!isRecursive){	
+                    if (!isRecursive){
                         dlopen_preflight(image);
                         printf("\nNot a suitable image: %s\n(%s)\n",image,dlerror());
                     }
-                    return 3;		
+                    return 3;
                 }
                 NSBundle *loadedBundle=[NSBundle bundleWithPath:imageString];
                 [imageString release];
@@ -353,7 +353,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
             
         }
     }
-    //LOG_FILE_LINE;
+    
     if (image!=nil && ![allImagesProcessed containsObject:[NSString stringWithCString:image encoding:2]] && ((dlopenError && (strstr(dlopenError,"no matching architecture in universal wrapper") || strstr(dlopenError,"not macOS") || strstr(dlopenError,"out of address space") || strstr(dlopenError,"mach-o, but wrong architecture"))) || (isExec && !shouldDLopen32BitExecutables))){
         @autoreleasepool{
             
@@ -372,7 +372,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
 #else
             NSString *tryWithLib=[NSString stringWithFormat:@"DYLD_INSERT_LIBRARIES=/usr/lib/libclassdumpdyld.dylib %@",escapedImage];
             
-#endif			
+#endif
             
             if (writeToDisk){
                 tryWithLib=[tryWithLib stringByAppendingString:[NSString stringWithFormat:@" -o %@",outputDir]];
@@ -425,14 +425,13 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
     // PROCEED
     BOOL isFramework=NO;
     NSMutableString *dumpString=[[NSMutableString alloc] initWithString:@""];
-    unsigned int count;	
+    unsigned int count;
     CDLog(@"Getting class count for %s",image);
     const char **names = objc_copyClassNamesForImage(image,&count);
     CDLog(@"Did return class count %d",count);
     if (count){
         printf("  Dumping "BOLDWHITE"%s"RESET"...(%d classes) %s \n",image ,count,[print_free_memory() UTF8String]);
-    }	
-    LOG_FILE_LINE;
+    }
     while ([outputDir rangeOfString:@"/" options:NSBackwardsSearch].location==outputDir.length-1){
         outputDir=[outputDir substringToIndex:outputDir.length-1];
     }
@@ -448,10 +447,9 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
     //LOG_FILE_LINE;
     NSString *imageName=[[NSString stringWithCString:image encoding:NSUTF8StringEncoding] lastPathComponent];
     NSString *fullImageNameInNS=[NSString stringWithCString:image encoding:NSUTF8StringEncoding];
-    LOG_FILE_LINE;
     [allImagesProcessed addObject:fullImageNameInNS];
     
-    NSString *seeIfIsBundleType=[fullImageNameInNS stringByDeletingLastPathComponent]; 
+    NSString *seeIfIsBundleType=[fullImageNameInNS stringByDeletingLastPathComponent];
     NSString *lastComponent=[seeIfIsBundleType lastPathComponent];
     NSString *targetDir=nil;
     CDLog(@"lastComponent: %@", lastComponent);
@@ -461,7 +459,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
     }
     else{
         targetDir=[fullImageNameInNS stringByDeletingLastPathComponent];
-        isFramework=YES;		
+        isFramework=YES;
     }
     NSString *headersFolder=addHeadersFolder ? @"/Headers" : @"";
     NSString *writeDir=buildOriginalDirs ? (isFramework ? [NSString stringWithFormat:@"%@/%@%@",outputDir,targetDir,headersFolder] : [NSString stringWithFormat:@"%@/%@",outputDir,targetDir])  : outputDir;
@@ -512,7 +510,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
         CDLog(@"Processing Class %s\n",names[i]);
         
         if (writeToDisk){
-            loadBar(i, count, 100, 50,names[i]);   
+            loadBar(i, count, 100, 50,names[i]);
         }
         
         //LOG_FILE_LINE;
@@ -554,6 +552,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                 inlineProtocolsString=@" <";
             }
             const char *protocolName=protocol_getName(protocolArray[t]);
+            LOG_FILE_LINE;
             NSString *addedProtocol=[[NSString stringWithCString:protocolName encoding:NSUTF8StringEncoding] retain];
             if (t<protocolCount-1){
                 addedProtocol=[[[addedProtocol autorelease] stringByAppendingString:@", "] retain];
@@ -583,9 +582,9 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                 NSString *superclassPrefix=[superclassString rangeOfString:@"_"].location==0 ? [[superclassString substringFromIndex:1] substringToIndex:2] : [superclassString substringToIndex:2];
                 const char *imageNameOfSuper=[imagePrefix isEqual:superclassPrefix] ? [imagePrefix UTF8String] : class_getImageName(objc_getClass([fixedSuperclass UTF8String]));
                 if (imageNameOfSuper){
-                    //LOG_FILE_LINE;
+                    
                     NSString *imageOfSuper=[NSString stringWithCString:imageNameOfSuper encoding:NSUTF8StringEncoding];
-                    imageOfSuper=[imageOfSuper lastPathComponent];	
+                    imageOfSuper=[imageOfSuper lastPathComponent];
                     importSuper=[NSString stringWithFormat:@"#import <%@/%@.h>\n",imageOfSuper,fixedSuperclass];
                 }
                 
@@ -611,7 +610,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                     NSString *imagePrefix=[imageName substringToIndex:2];
                     NSString *protocolPrefix=nil;
                     NSString *imageOfProtocol=nil;
-                    //LOG_FILE_LINE;
+                    
                     CDLog(@"protocolNSString: %@", protocolNSString);
                     protocolPrefix=[protocolNSString rangeOfString:@"_"].location==0 ? [[protocolNSString substringFromIndex:1] substringToIndex:2] : [protocolNSString substringToIndex:2];
                     imageOfProtocol=([imagePrefix isEqual:protocolPrefix] || !class_getImageName(protocol) ) ? imageName : [NSString stringWithCString:class_getImageName(protocol) encoding:NSUTF8StringEncoding];
@@ -627,7 +626,6 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
             if ([protocolsAdded containsObject:protocolNSString]){
                 continue;
             }
-            LOG_FILE_LINE;
             [protocolsAdded addObject:protocolNSString];
             NSString *protocolHeader=buildProtocolFile(protocol);
             if (strcmp(names[i],protocolName)==0){
@@ -643,7 +641,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                     [[NSFileManager defaultManager] createDirectoryAtPath:writeDir withIntermediateDirectories:YES attributes:nil error:nil];
                     
                     
-                    if ( ![protocolHeader writeToFile:[NSString stringWithFormat:@"%@/%s.h",writeDir,protocolName] atomically:YES encoding:NSUTF8StringEncoding error:nil]){	
+                    if ( ![protocolHeader writeToFile:[NSString stringWithFormat:@"%@/%s.h",writeDir,protocolName] atomically:YES encoding:NSUTF8StringEncoding error:nil]){
                         printf("  Failed to save protocol header to directory \"%s\"\n",[writeDir UTF8String]);
                     }
                 }
@@ -653,7 +651,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                 }
             }
             
-        }			
+        }
         free(protocolArray);
         
         
@@ -661,7 +659,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
         // Get Ivars
         unsigned int ivarOutCount;
         Ivar * ivarArray=class_copyIvarList(currentClass, &ivarOutCount);
-        if (ivarOutCount>0){	
+        if (ivarOutCount>0){
             [dumpString appendString:@" {\n"];
             for (unsigned x=0;x<ivarOutCount;x++){
                 Ivar currentIvar=ivarArray[x];
@@ -669,7 +667,6 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                 //LOG_FILE_LINE;
                 NSString *ivarNameNS=[NSString stringWithCString:ivarName encoding:NSUTF8StringEncoding];
                 const char * ivarType=ivar_getTypeEncoding(currentIvar);
-                //LOG_FILE_LINE;
                 
                 NSString *ivarString = nil;
                 
@@ -693,10 +690,8 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                                 
                                 int firstOpening=[classFoundInIvars rangeOfString:@"<"].location;
                                 if (firstOpening!=0){
-                                    LOG_FILE_LINE;
                                     NSString *classToAdd=[classFoundInIvars substringToIndex:firstOpening];
                                     if (![classesInClass containsObject:classToAdd]){
-                                        LOG_FILE_LINE;
                                         [classesInClass addObject:classToAdd];
                                     }
                                 }
@@ -706,13 +701,11 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                                 protocolToAdd=[protocolToAdd stringByReplacingOccurrencesOfString:@">" withString:@""];
                                 protocolToAdd=[protocolToAdd stringByReplacingOccurrencesOfString:@"*" withString:@""];
                                 if (![inlineProtocols containsObject:protocolToAdd]){
-                                    LOG_FILE_LINE;
                                     [inlineProtocols addObject:protocolToAdd];
                                 }
                                 
                             }
                             else{
-                                LOG_FILE_LINE;
                                 [classesInClass addObject:classFoundInIvars];
                             }
                         }
@@ -801,7 +794,6 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
             CDLog(@"string: %@", string);
             int synthesizeLocation=[string rangeOfString:@"//@synth"].location;
             if ([string rangeOfString:@"//@synth"].location==NSNotFound){
-                LOG_FILE_LINE;
                 [newStrings addObject:string];
                 continue;
             }
@@ -809,11 +801,9 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
             NSString *copyString=[string substringFromIndex:synthesizeLocation];
             CDLog(@"string: %@", string);
             int location=[string rangeOfString:@";"].location;
-            LOG_FILE_LINE;
             string=[string substringToIndex:location+1];
             string=[string stringByPaddingToLength:longestLocation+15 withString:@" " startingAtIndex:0];
             string=[string stringByAppendingString:copyString];
-            LOG_FILE_LINE;
             [newStrings addObject:string];
         }
         if (propLenght>0){
@@ -822,7 +812,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
         
         // Gather All Strings
         [dumpString appendString:propertiesString];
-        [dumpString appendString:[generateMethodLines(object_getClass(currentClass),NO,nil) autorelease]];		
+        [dumpString appendString:[generateMethodLines(object_getClass(currentClass),NO,nil) autorelease]];
         [dumpString appendString:[generateMethodLines(currentClass,YES,propertiesArrayFromString(propertiesString)) autorelease]];
         [dumpString appendString:@"\n@end\n\n"];
         
@@ -856,23 +846,23 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                     }
                 }
                 [classesFoundToAdd appendString:@"\n\n"];
-                [dumpString insertString:classesFoundToAdd atIndex:firstInteface];	
-                [classesFoundToAdd release];		
+                [dumpString insertString:classesFoundToAdd atIndex:firstInteface];
+                [classesFoundToAdd release];
             }
         }
         
         // Write strings to disk or print out
         NSError *writeError;
         if (writeToDisk){
-            LOG_FILE_LINE;
+            //LOG_FILE_LINE;
             [[NSFileManager defaultManager] createDirectoryAtPath:writeDir withIntermediateDirectories:YES attributes:nil error:nil];
             NSString *fileToWrite=[NSString stringWithCString:names[i] encoding:NSUTF8StringEncoding];
-            LOG_FILE_LINE;
+            //LOG_FILE_LINE;
             if ([[NSString stringWithCString:names[i] encoding:NSUTF8StringEncoding] isEqual:[[NSString stringWithCString:image encoding:NSUTF8StringEncoding] lastPathComponent]]){
                 fileToWrite=[[NSString stringWithCString:names[i] encoding:NSUTF8StringEncoding] stringByAppendingString:@"-Class"];
             }
             
-            if ( ![dumpString writeToFile:[NSString stringWithFormat:@"%@/%@.h",writeDir,fileToWrite] atomically:YES encoding:NSUTF8StringEncoding error:&writeError]){	
+            if ( ![dumpString writeToFile:[NSString stringWithFormat:@"%@/%@.h",writeDir,fileToWrite] atomically:YES encoding:NSUTF8StringEncoding error:&writeError]){
                 printf("  Failed to save to directory \"%s\"\n",[writeDir UTF8String]);
                 exit(1);
                 if (writeError!=nil){
@@ -896,7 +886,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
         dumpString=[[NSMutableString alloc] init];
         [pool drain];
         
-    } 
+    }
     // END OF PER-CLASS LOOP
     
     if (actuallyProcesssedCount==0 && onlyOneClass){
@@ -904,8 +894,8 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
     }
     
     if (writeToDisk && classesToImport.length>2){
-        [[NSFileManager defaultManager] createDirectoryAtPath:writeDir withIntermediateDirectories:YES attributes:nil error:nil];		
-        if (![classesToImport writeToFile:[NSString stringWithFormat:@"%@/%@.h",writeDir,imageName] atomically:YES encoding:NSUTF8StringEncoding error:nil]){	
+        [[NSFileManager defaultManager] createDirectoryAtPath:writeDir withIntermediateDirectories:YES attributes:nil error:nil];
+        if (![classesToImport writeToFile:[NSString stringWithFormat:@"%@/%@.h",writeDir,imageName] atomically:YES encoding:NSUTF8StringEncoding error:nil]){
             printf("  Failed to save header list to directory \"%s\"\n",[writeDir UTF8String]);
             
         }
@@ -934,7 +924,6 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
             for (NSString *string in classesInStructs){
                 structsString=[[[structsString autorelease] stringByAppendingString:[NSString stringWithFormat:@"%@, ",string]] retain];
             }
-            LOG_FILE_LINE;
             structsString=[[[structsString autorelease] substringToIndex:structsString.length-2] retain];
             structsString=[[[structsString autorelease] stringByAppendingString:@";\n\n"] retain];
         }
@@ -946,7 +935,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
         if (writeToDisk){
             [[NSFileManager defaultManager] createDirectoryAtPath:writeDir withIntermediateDirectories:YES attributes:nil error:nil];
             
-            if (![structsString writeToFile:[NSString stringWithFormat:@"%@/%@-Structs.h",writeDir,imageName] atomically:YES encoding:NSUTF8StringEncoding error:&writeError]){	
+            if (![structsString writeToFile:[NSString stringWithFormat:@"%@/%@-Structs.h",writeDir,imageName] atomically:YES encoding:NSUTF8StringEncoding error:&writeError]){
                 printf("  Failed to save structs to directory \"%s\"\n",[writeDir UTF8String]);
                 if (writeError!=nil){
                     printf("  %s\n",[[writeError description] UTF8String]);
@@ -971,7 +960,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
         struct mach_header_64 * mh64=nil;
         
         if (!my_dyld_get_all_image_infos){
-            findDyldGetAllImageInfosSymbol();	
+            findDyldGetAllImageInfosSymbol();
         }
         dyld_all_image_infos = my_dyld_get_all_image_infos();
         for(int i=0; i<dyld_all_image_infos->infoArrayCount; i++) {
@@ -1003,11 +992,11 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
             if (!arch64()){
                 CDLog(@"In Symbols -> Got mach header OK , filetype %d",mh->filetype);
                 
-                // Thanks to FilippoBiga for the code snippet below 
+                // Thanks to FilippoBiga for the code snippet below
                 
                 struct segment_command *seg_linkedit = NULL;
                 struct segment_command *seg_text = NULL;
-                struct symtab_command *symtab = NULL;			
+                struct symtab_command *symtab = NULL;
                 struct load_command *cmd =  (struct load_command*)((char*)mh + sizeof(struct mach_header));
                 CDLog(@"In Symbols -> Iterating header commands for %s",image);
                 for (uint32_t index = 0; index < mh->ncmds; index++, cmd = (struct load_command*)((char*)cmd + cmd->cmdsize))
@@ -1020,18 +1009,18 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                             //CDLog(@"FOUND LC_SEGMENT");
                             struct segment_command *segmentCommand = (struct segment_command*)(cmd);
                             if (strncmp(segmentCommand->segname, "__TEXT", sizeof(segmentCommand->segname)) == 0)
-                            {	                
+                            {
                                 seg_text = segmentCommand;
                                 
                             } else if (strncmp(segmentCommand->segname, "__LINKEDIT", sizeof(segmentCommand->segname)) == 0)
-                            {	
+                            {
                                 seg_linkedit = segmentCommand;
                             }
                             break;
                         }
                             
                         case LC_SYMTAB:
-                        {	
+                        {
                             //CDLog(@"FOUND SYMTAB");
                             symtab = (struct symtab_command*)(cmd);
                             break;
@@ -1063,10 +1052,10 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                 
                 CDLog(@"In Symbols -> Iteraring symtab");
                 for (uint32_t index = 0; index < symtab->nsyms; index += 1, sym += 1)
-                {	
+                {
                     
                     if ((uint32_t)sym->n_un.n_strx > symtab->strsize)
-                    {   	
+                    {
                         break;
                         
                     } else {
@@ -1077,8 +1066,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                             if (!symbolsString){
                                 NSString *copyrightString=copyrightMessage(image);
                                 [symbolsString appendString:[copyrightString stringByReplacingOccurrencesOfString:@"This header" withString:@"This output"]];
-                                [copyrightString release];	
-                                LOG_FILE_LINE;
+                                [copyrightString release];
                                 [symbolsString appendString :[NSString stringWithFormat:@"\nSymbols found in %s:\n%@\n",image,[NSString stringWithCString:str encoding:NSUTF8StringEncoding]]] ;
                             }
                             else{
@@ -1092,7 +1080,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                     
                 }
                 [pp drain];
-            }	
+            }
             
             else{
                 
@@ -1110,22 +1098,22 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                     switch(cmd->cmd)
                     {
                         case LC_SEGMENT_64:
-                        {	
+                        {
                             //CDLog(@"FOUND LC_SEGMENT_64");
                             struct segment_command_64 *segmentCommand = (struct segment_command_64*)(cmd);
                             if (strncmp(segmentCommand->segname, "__TEXT", sizeof(segmentCommand->segname)) == 0)
-                            {	                
+                            {
                                 seg_text = segmentCommand;
                                 
                             } else if (strncmp(segmentCommand->segname, "__LINKEDIT", sizeof(segmentCommand->segname)) == 0)
-                            {	
+                            {
                                 seg_linkedit = segmentCommand;
                             }
                             break;
                         }
                             
                         case LC_SYMTAB:
-                        {	
+                        {
                             //CDLog(@"FOUND SYMTAB");
                             symtab = (struct symtab_command*)(cmd);
                             break;
@@ -1156,10 +1144,10 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                 
                 CDLog(@"In Symbols -> Iteraring symtab");
                 for (uint32_t index = 0; index < symtab->nsyms; index += 1, sym += 1)
-                {	
+                {
                     
                     if ((uint32_t)sym->n_un.n_strx > symtab->strsize)
-                    {   	
+                    {
                         break;
                         
                     } else {
@@ -1170,8 +1158,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                             if (!symbolsString){
                                 NSString *copyrightString=copyrightMessage(image);
                                 [symbolsString appendString:[copyrightString stringByReplacingOccurrencesOfString:@"This header" withString:@"This output"]];
-                                [copyrightString release];						
-                                LOG_FILE_LINE;
+                                [copyrightString release];
                                 [symbolsString appendString :[NSString stringWithFormat:@"\nSymbols found in %s:\n%@\n",image,[NSString stringWithCString:str encoding:NSUTF8StringEncoding]]] ;
                             }
                             else{
@@ -1193,7 +1180,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
             if ([symbolsString length]>0){
                 if (writeToDisk){
                     [[NSFileManager defaultManager] createDirectoryAtPath:writeDir withIntermediateDirectories:YES attributes:nil error:&error2];
-                    if (![symbolsString writeToFile:[NSString stringWithFormat:@"%@/%@-Symbols.h",writeDir,imageName] atomically:YES encoding:NSUTF8StringEncoding error:&error2]){	
+                    if (![symbolsString writeToFile:[NSString stringWithFormat:@"%@/%@-Symbols.h",writeDir,imageName] atomically:YES encoding:NSUTF8StringEncoding error:&error2]){
                         printf("  Failed to save symbols to directory \"%s\"\n",[writeDir UTF8String]);
                         if (error2!=nil){
                             printf("  %s\n",[[error2 description] UTF8String]);
@@ -1202,7 +1189,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                 }
                 else{
                     printf("\n%s\n",[symbolsString UTF8String]);
-                }		
+                }
             }
             [symbolsString release];
         }
@@ -1269,7 +1256,7 @@ int main(int argc, char **argv, char **envp) {
             
             if ([arg isEqual:@"-o"]){
                 
-                int argIndex=[arguments indexOfObject:arg]; 
+                int argIndex=[arguments indexOfObject:arg];
                 
                 if (argIndex==argCount-1){
                     printHelp();
@@ -1291,7 +1278,7 @@ int main(int argc, char **argv, char **envp) {
             
             if ([arg isEqual:@"-j"]){
                 
-                int argIndex=[arguments indexOfObject:arg]; 
+                int argIndex=[arguments indexOfObject:arg];
                 
                 if (argIndex==argCount-1){
                     printHelp();
@@ -1316,7 +1303,7 @@ int main(int argc, char **argv, char **envp) {
             
             if ([arg isEqual:@"-r"]){
                 
-                int argIndex=[arguments indexOfObject:arg]; 
+                int argIndex=[arguments indexOfObject:arg];
                 
                 if (argIndex==argCount-1){
                     printHelp();
@@ -1369,21 +1356,21 @@ int main(int argc, char **argv, char **envp) {
             
             if ([arg isEqual:@"-u"]){
                 simpleHeader=YES;
-                [argumentsToUse removeObject:arg];				
+                [argumentsToUse removeObject:arg];
             }
             if ([arg isEqual:@"-c"]){
                 isSharedCacheRecursive=YES;
-                [argumentsToUse removeObject:arg];				
+                [argumentsToUse removeObject:arg];
             }
             if ([arg isEqual:@"-h"]){
                 addHeadersFolder=YES;
-                [argumentsToUse removeObject:arg];				
+                [argumentsToUse removeObject:arg];
             }
             
             
             if ([arg isEqual:@"-x"]){
                 
-                int argIndex=[arguments indexOfObject:arg]; 
+                int argIndex=[arguments indexOfObject:arg];
                 
                 if (argIndex==argCount-1){
                     printHelp();
@@ -1417,7 +1404,7 @@ int main(int argc, char **argv, char **envp) {
         
         if (onlyOneClass && (recursive || isSharedCacheRecursive)){
             printHelp();
-            exit(0);		
+            exit(0);
         }
         
         if (addHeadersFolder && !outputDir){
@@ -1440,11 +1427,11 @@ int main(int argc, char **argv, char **envp) {
         if (!recursive && !isSharedCacheRecursive){
             if ([argumentsToUse count]>1){
                 printHelp();
-                exit(0);			
+                exit(0);
             }
             else{
                 if ([argumentsToUse count]>0){
-                    image=(char *)[[argumentsToUse objectAtIndex:0] UTF8String];			
+                    image=(char *)[[argumentsToUse objectAtIndex:0] UTF8String];
                 }
                 else{
                     printHelp();
@@ -1490,7 +1477,6 @@ int main(int argc, char **argv, char **envp) {
                 }
             }
             fclose(fp);
-            LOG_FILE_LINE;
             printf("\n   Now dumping "BOLDWHITE"%s..."RESET"\n\n",filename);
             // Thanks to DHowett & KennyTM~ for dyld_shared_cache listing codes
             struct stat filebuffer;
@@ -1502,20 +1488,17 @@ int main(int argc, char **argv, char **envp) {
                 leftovers = filesize - SIZE_LIMIT;
                 filesize = SIZE_LIMIT;
             }
-            NSLog(@"file size: %lu", filesize);
+            NSLog(@"file size: %llu", filesize);
             int fd = open(filename, O_RDONLY);
-            LOG_FILE_LINE;
             _cacheData = (uint8_t *)mmap(NULL, filesize, PROT_READ, MAP_PRIVATE, fd, 0);
-            LOG_FILE_LINE;
             _cacheHead = (struct cache_header *)_cacheData;
             uint64_t curoffset = _cacheHead->startaddr;
-            LOG_FILE_LINE;
             int currentIndex = 0;
             //NSLog(@"lib count: %i", _cacheHead->numlibs);
             for (unsigned i = 0; i < _cacheHead->numlibs; ++ i) {
                 LOG_FILE_LINE;
                 uint64_t fo = *(uint64_t *)(_cacheData + curoffset + 24);
-                NSLog(@"fo: %lu offset: %lu index: %i / %i", fo, curoffset, i, _cacheHead->numlibs);
+                //NSLog(@"fo: %lu offset: %lu index: %i / %i", fo, curoffset, i, _cacheHead->numlibs);
                 curoffset += 32;
                 if (curoffset > filesize){
                     NSLog(@"stopping at lib index: %i", i);
@@ -1524,12 +1507,10 @@ int main(int argc, char **argv, char **envp) {
                 currentIndex = i;
                 
                 char *imageInCache=(char*)_cacheData + fo;
-                LOG_FILE_LINE;
                 // a few blacklisted frameworks that crash
                 if ( strstr(imageInCache,"Powerlog") || strstr(imageInCache,"Parsec") || strstr(imageInCache,"WebKitLegacy") || strstr(imageInCache,"VisualVoicemail") || strstr(imageInCache,"/System/Library/Frameworks/CoreGraphics.framework/Resources/") || strstr(imageInCache,"JavaScriptCore.framework") || strstr(imageInCache,"GameKitServices.framework") || strstr(imageInCache,"VectorKit")){
                     continue;
                 }
-                LOG_FILE_LINE;
                 NSMutableString *imageToNSString=[[NSMutableString alloc] initWithCString:imageInCache encoding:NSUTF8StringEncoding];
                 [imageToNSString replaceOccurrencesOfString:@"///" withString:@"/" options:nil range:NSMakeRange(0, [imageToNSString length])];
                 [imageToNSString replaceOccurrencesOfString:@"//" withString:@"/" options:nil range:NSMakeRange(0, [imageToNSString length])];
@@ -1538,7 +1519,7 @@ int main(int argc, char **argv, char **envp) {
                 [imageToNSString release];
                 
             }
-            LOG_FILE_LINE;
+            //LOG_FILE_LINE;
             munmap(_cacheData, filesize);
             if (leftovers > 0){
                 _cacheData = (uint8_t *)mmap(NULL, leftovers, PROT_READ, MAP_PRIVATE, fd, leftovers);
@@ -1567,7 +1548,7 @@ int main(int argc, char **argv, char **envp) {
             }
             close(fd);
             
-            printf("\n   Finished dumping "BOLDWHITE"%s..."RESET"\n\n",filename);	
+            printf("\n   Finished dumping "BOLDWHITE"%s..."RESET"\n\n",filename);
         }
         if (recursive){
             
@@ -1594,8 +1575,8 @@ int main(int argc, char **argv, char **envp) {
             if (image){
                 
                 NSError *error;
-                NSFileManager *fileman=[[NSFileManager alloc ] init];	
-                NSString *imageString=nil;	
+                NSFileManager *fileman=[[NSFileManager alloc ] init];
+                NSString *imageString=nil;
                 if (outputDir){
                     [fileman createDirectoryAtPath:outputDir withIntermediateDirectories:YES attributes:nil error:&error];
                     if (error){
@@ -1605,7 +1586,7 @@ int main(int argc, char **argv, char **envp) {
                     [fileman changeCurrentDirectoryPath:currentDir];
                     [fileman changeCurrentDirectoryPath:outputDir];
                     outputDir=[fileman currentDirectoryPath];
-                    LOG_FILE_LINE;
+                    //LOG_FILE_LINE;
                     imageString=[NSString stringWithCString:image encoding:NSUTF8StringEncoding];
                     CDLog(@"imageString: %@", imageString);
                     if ([imageString rangeOfString:@"/"].location!=0){ // not an absolute path
