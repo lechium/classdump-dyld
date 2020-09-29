@@ -97,7 +97,7 @@ NSMutableArray * generateForbiddenClassesArray(BOOL isRecursive){
     BOOL IOS12=[[[NSProcessInfo processInfo] operatingSystemVersionString] rangeOfString:@"Version 12"].location==0;
     
     forbiddenClasses=[[NSMutableArray alloc] init];
-    
+    return forbiddenClasses;
     if (priorToiOS7()){
         [forbiddenClasses addObject:@"VKRoadGroup"];
         [forbiddenClasses addObject:@"SBApplication"];

@@ -665,21 +665,22 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
             for (unsigned x=0;x<ivarOutCount;x++){
                 Ivar currentIvar=ivarArray[x];
                 const char * ivarName=ivar_getName(currentIvar);
-                //LOG_FILE_LINE;
+                CDLog(@"%i: %i of %i", __LINE__, x, ivarOutCount);
                 NSString *ivarNameNS=[NSString stringWithCString:ivarName encoding:NSUTF8StringEncoding];
                 const char * ivarType=ivar_getTypeEncoding(currentIvar);
-                
+                LOG_FILE_LINE;
                 NSString *ivarString = nil;
-                
                 @try {
                     ivarString = [NSString stringWithCString:ivarType encoding:NSUTF8StringEncoding];
                 }
                 @catch (NSException *exception) {
-                    NSLog(@"main.m: unable to create string from %@ because of exception: %@", ivarNameNS, exception.reason);
+                    DLog(@"main.m: unable to create string from '%@' because of exception: %@", ivarNameNS, exception.reason);
                 }
-                if (ivarString){
+                //NSLog(@"ivarString: %@ length: %lu", ivarString, ivarString.length);
+                //sometimes the ivarString is funky and has an absurd length like 48,000+, that will lock us up until we run out of memory
+                
+                if (ivarString && ivarString.length < 10000){
                     NSString *ivarTypeString=commonTypes(ivarString,&ivarNameNS,YES);
-                    CDLog(@"ivarTypeString: %@", ivarTypeString);
                     if ([ivarTypeString rangeOfString:@"@\""].location!=NSNotFound){
                         ivarTypeString=[ivarTypeString stringByReplacingOccurrencesOfString:@"@\"" withString:@""];
                         ivarTypeString=[ivarTypeString stringByReplacingOccurrencesOfString:@"\"" withString:@"*"];
@@ -688,7 +689,6 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                             
                             CDLog(@"classFoundInIvars: %@", ivarTypeString);
                             if ([classFoundInIvars rangeOfString:@"<"].location!=NSNotFound ){
-                                
                                 int firstOpening=[classFoundInIvars rangeOfString:@"<"].location;
                                 if (firstOpening!=0){
                                     NSString *classToAdd=[classFoundInIvars substringToIndex:firstOpening];
@@ -710,7 +710,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                                 [classesInClass addObject:classFoundInIvars];
                             }
                         }
-                        CDLog(@"ivarTypeString: %@", ivarTypeString);
+                        CDLog(@"%i: ivarTypeString: %@", __LINE__, ivarTypeString);
                         if ([ivarTypeString rangeOfString:@"<"].location!=NSNotFound){
                             ivarTypeString=[ivarTypeString stringByReplacingOccurrencesOfString:@">*" withString:@">"];
                             if ([ivarTypeString rangeOfString:@"<"].location==0){
@@ -721,13 +721,11 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                             }
                         }
                     }
-                    
                     NSString *formatted=[NSString stringWithFormat:@"\n\t%@ %@;",ivarTypeString,ivarNameNS];
                     [dumpString appendString:formatted];
                 }
             }
             [dumpString appendString:@"\n\n}"];
-            
         }
         free(ivarArray);
         
@@ -1501,7 +1499,7 @@ int main(int argc, char **argv, char **envp) {
             for (unsigned i = 0; i < _cacheHead->numlibs; ++ i) {
                 //LOG_FILE_LINE;
                 uint64_t fo = *(uint64_t *)(_cacheData + curoffset + 24);
-                //NSLog(@"fo: %lu offset: %lu index: %i / %i", fo, curoffset, i, _cacheHead->numlibs);
+                CDLog(@"fo: %lu offset: %lu index: %i / %i", fo, curoffset, i, _cacheHead->numlibs);
                 curoffset += 32;
                 if (fo > filesize){
                     NSLog(@"stopping at lib index: %i", i);
