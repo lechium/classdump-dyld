@@ -203,6 +203,8 @@ NSMutableArray * generateForbiddenClassesArray(BOOL isRecursive){
     [forbiddenClasses addObject:@"OZFxPlugHostPrivateAPI"];
     [forbiddenClasses addObject:@"MovieController"];
     [forbiddenClasses addObject:@"_TtC7SwiftUIP33_936A47782A7E2FBE97D58CDBAEB0277015ProgressWrapper"];
+    [forbiddenClasses addObject:@"HFHumidityStatusItem"];
+    [forbiddenClasses addObject:@"HFDemoModeAccessory"];
     if (IOS11 || IOS12){
         [forbiddenClasses addObject:@"SKTransformNode"];
         [forbiddenClasses addObject:@"OZFxPlugParameterHandler"];
@@ -373,8 +375,10 @@ NSMutableArray * generateForbiddenPathsArray(BOOL isRecursive){
     }
     
     [forbiddenPaths addObject:@"AGXMetal"];
+    /*
     [forbiddenPaths addObject:@"PhotosUI"];
-    [forbiddenPaths addObject:@"AccessibilityUIService"];
+    
+    //[forbiddenPaths addObject:@"AccessibilityUIService"];
     [forbiddenPaths addObject:@"CoreSuggestionsInternals"];
     [forbiddenPaths addObject:@"GameCenterPrivateUI"];
     [forbiddenPaths addObject:@"GameCenterUI"];
@@ -385,7 +389,7 @@ NSMutableArray * generateForbiddenPathsArray(BOOL isRecursive){
     [forbiddenPaths addObject:@"Celestial.framework"];
     [forbiddenPaths addObject:@"SpriteKit.framework"];
     [forbiddenPaths addObject:@"PodcastsKit.framework"];
-    [forbiddenPaths addObject:@"Home.framework"];
+    
     [forbiddenPaths addObject:@"SiriUICore.framework"];
     [forbiddenPaths addObject:@"CoreKnowledge.framework"];
     [forbiddenPaths addObject:@"ProVideo.framework"];
@@ -400,6 +404,7 @@ NSMutableArray * generateForbiddenPathsArray(BOOL isRecursive){
     [forbiddenPaths addObject:@"Parsec"];
     [forbiddenPaths addObject:@"ZoomTouch"];
     [forbiddenPaths addObject:@"VisualVoicemailUsage"];
+     */
     if (isRecursive){
         [forbiddenPaths addObject:@"braille"];
         [forbiddenPaths addObject:@"QuickSpeak"];
@@ -407,6 +412,7 @@ NSMutableArray * generateForbiddenPathsArray(BOOL isRecursive){
         [forbiddenPaths addObject:@"Mail.siriUIBundle"];
         [forbiddenPaths addObject:@"TTSPlugins"];
     }
+    [forbiddenPaths addObject:@"Home.framework"];
     [forbiddenPaths addObject:@"AppPredictionInternal.framework"];
     [forbiddenPaths addObject:@"NumbersQuicklook.framework"];
     [forbiddenPaths addObject:@"TSText.framework"];

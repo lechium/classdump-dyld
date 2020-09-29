@@ -374,8 +374,11 @@ NSString * buildProtocolFile(Protocol *currentProtocol){
                 int argCount=0;
                 for (unsigned ad=2;ad<[signature numberOfArguments]; ad++){
                     argCount++;
+                    NSString *sigCommonTypesString = [NSString stringWithCString:[signature cd_getArgumentTypeAtIndex:ad] encoding:NSUTF8StringEncoding];
                     NSString *space=ad==[signature numberOfArguments]-1 ? @"" : @" ";
-                    finString=[finString stringByAppendingString:[NSString stringWithFormat:@"%@:(%@)arg%d%@" ,[selectorsArray objectAtIndex:ad-2],commonTypes([NSString stringWithCString:[signature cd_getArgumentTypeAtIndex:ad] encoding:NSUTF8StringEncoding],nil,NO),argCount,space]];
+                    NSString *selectorObject = [selectorsArray objectAtIndex:ad-2];
+                   // NSLog(@"finstring: %@ selectorsArray: %@, selectorObject: %@, sigCommonTypesString: %@", finString, selectorsArray, selectorObject, sigCommonTypesString);
+                    finString=[finString stringByAppendingString:[NSString stringWithFormat:@"%@:(%@)arg%d%@" ,selectorObject,commonTypes(sigCommonTypesString,nil,NO),argCount,space]];
                 }
             }
             else{
@@ -490,7 +493,8 @@ static NSString *representedStructFromStruct(NSString *inStruct,NSString *inName
             while ([types rangeOfString:@"{"].location!=NSNotFound){
                 
                 NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\{([^\\{^\\}]+)\\}" options:NSRegularExpressionCaseInsensitive error:nil];
-                __block NSString *blParts;
+                __block NSString *blParts = nil;
+                //(?=d{})QQddQ <-- this particular 'types' would cause a segfault/crash and now causes an infinite loop
                 [regex enumerateMatchesInString:types options:0
                                           range:NSMakeRange(0, [types length])
                                      usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
@@ -506,7 +510,13 @@ static NSString *representedStructFromStruct(NSString *inStruct,NSString *inName
                     }
                     
                 }];
-                types=blParts;
+                if (blParts){ //if its not found, blParts is nil and will break things.
+                    types=blParts;
+                } else {
+                    //this might not be an end all be all, but it fixes it for this types: (?=d{})QQddQ
+                    types = [types stringByReplacingOccurrencesOfString:@"{}" withString:@""];
+                }
+                
             }
             NSMutableArray *alreadyFoundStructs=[NSMutableArray array];
             for (NSDictionary *dict in allStructsFound){

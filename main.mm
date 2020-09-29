@@ -465,7 +465,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
     NSString *writeDir=buildOriginalDirs ? (isFramework ? [NSString stringWithFormat:@"%@/%@%@",outputDir,targetDir,headersFolder] : [NSString stringWithFormat:@"%@/%@",outputDir,targetDir])  : outputDir;
     writeDir=[writeDir stringByReplacingOccurrencesOfString:@"///" withString:@"/"];
     writeDir=[writeDir stringByReplacingOccurrencesOfString:@"//" withString:@"/"];
-    LOG_FILE_LINE;
+    //LOG_FILE_LINE;
     [processedImages addObject:[NSString stringWithCString:image encoding:NSUTF8StringEncoding]];
     CDLog(@"Beginning class loop (%d classed) for %s",count,image);
     NSMutableString *classesToImport=[[NSMutableString alloc] init];
@@ -547,12 +547,13 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
         unsigned int protocolCount;
         Protocol ** protocolArray=class_copyProtocolList(currentClass, &protocolCount);
         NSString *inlineProtocolsString=@"";
+        //NSLog(@"protocol count: %i", protocolCount);
         for (unsigned t=0; t<protocolCount; t++){
             if (t==0){
                 inlineProtocolsString=@" <";
             }
             const char *protocolName=protocol_getName(protocolArray[t]);
-            LOG_FILE_LINE;
+            //LOG_FILE_LINE;
             NSString *addedProtocol=[[NSString stringWithCString:protocolName encoding:NSUTF8StringEncoding] retain];
             if (t<protocolCount-1){
                 addedProtocol=[[[addedProtocol autorelease] stringByAppendingString:@", "] retain];
@@ -1484,28 +1485,30 @@ int main(int argc, char **argv, char **envp) {
             unsigned long long filesize = filebuffer.st_size;
             //2031403008
             unsigned long long leftovers = 0;
+            unsigned long long originalSize = filesize;
             if (filesize > SIZE_LIMIT){
                 leftovers = filesize - SIZE_LIMIT;
                 filesize = SIZE_LIMIT;
             }
-            NSLog(@"file size: %llu", filesize);
+            //NSLog(@"file size: %llu", filesize);
             int fd = open(filename, O_RDONLY);
             _cacheData = (uint8_t *)mmap(NULL, filesize, PROT_READ, MAP_PRIVATE, fd, 0);
             _cacheHead = (struct cache_header *)_cacheData;
             uint64_t curoffset = _cacheHead->startaddr;
             int currentIndex = 0;
+            uint64_t currentFo = 0;
             //NSLog(@"lib count: %i", _cacheHead->numlibs);
             for (unsigned i = 0; i < _cacheHead->numlibs; ++ i) {
-                LOG_FILE_LINE;
+                //LOG_FILE_LINE;
                 uint64_t fo = *(uint64_t *)(_cacheData + curoffset + 24);
                 //NSLog(@"fo: %lu offset: %lu index: %i / %i", fo, curoffset, i, _cacheHead->numlibs);
                 curoffset += 32;
-                if (curoffset > filesize){
+                if (fo > filesize){
                     NSLog(@"stopping at lib index: %i", i);
                     continue;
                 }
-                currentIndex = i;
-                
+                currentIndex = i+1;//(because this is ++i for loop)
+                currentFo = fo;
                 char *imageInCache=(char*)_cacheData + fo;
                 // a few blacklisted frameworks that crash
                 if ( strstr(imageInCache,"Powerlog") || strstr(imageInCache,"Parsec") || strstr(imageInCache,"WebKitLegacy") || strstr(imageInCache,"VisualVoicemail") || strstr(imageInCache,"/System/Library/Frameworks/CoreGraphics.framework/Resources/") || strstr(imageInCache,"JavaScriptCore.framework") || strstr(imageInCache,"GameKitServices.framework") || strstr(imageInCache,"VectorKit")){
@@ -1519,13 +1522,16 @@ int main(int argc, char **argv, char **envp) {
                 [imageToNSString release];
                 
             }
-            //LOG_FILE_LINE;
+            int itemsLeft = _cacheHead->numlibs - currentIndex;
             munmap(_cacheData, filesize);
+            leftovers = originalSize - currentFo;
+            //NSLog(@"items left: %i currentFo: %lu leftovers: %lu", itemsLeft, currentFo, leftovers);
             if (leftovers > 0){
-                _cacheData = (uint8_t *)mmap(NULL, leftovers, PROT_READ, MAP_PRIVATE, fd, leftovers);
-                LOG_FILE_LINE;
-                for (unsigned i = 0; i < _cacheHead->numlibs; ++ i) {
-                    LOG_FILE_LINE;
+                //NSLog(@"starting leftovers!!");
+                _cacheData = (uint8_t *)mmap(NULL, leftovers, PROT_READ, MAP_PRIVATE, fd, currentFo);
+                //LOG_FILE_LINE;
+                for (unsigned i = currentIndex; i < currentIndex + itemsLeft; ++ i) {
+                    //LOG_FILE_LINE;
                     uint64_t fo = *(uint64_t *)(_cacheData + curoffset + 24);
                     curoffset += 32;
                     char *imageInCache=(char*)_cacheData + fo;
