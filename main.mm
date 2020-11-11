@@ -1509,7 +1509,18 @@ int main(int argc, char **argv, char **envp) {
                 currentFo = fo;
                 char *imageInCache=(char*)_cacheData + fo;
                 // a few blacklisted frameworks that crash
-                if ( strstr(imageInCache,"Powerlog") || strstr(imageInCache,"Parsec") || strstr(imageInCache,"WebKitLegacy") || strstr(imageInCache,"VisualVoicemail") || strstr(imageInCache,"/System/Library/Frameworks/CoreGraphics.framework/Resources/") || strstr(imageInCache,"JavaScriptCore.framework") || strstr(imageInCache,"GameKitServices.framework") || strstr(imageInCache,"VectorKit")){
+                if ( strstr(imageInCache,"iWorkImport.framework") || 
+                     strstr(imageInCache,"TSReading") || 
+                     strstr(imageInCache,"TSStyles") || 
+                     strstr(imageInCache,"PencilPairingUI") ||
+                     strstr(imageInCache,"Powerlog") || 
+                     strstr(imageInCache,"Parsec") || 
+                     strstr(imageInCache,"WebKitLegacy") || 
+                     strstr(imageInCache,"VisualVoicemail") || 
+                     strstr(imageInCache,"/System/Library/Frameworks/CoreGraphics.framework/Resources/") ||
+                     strstr(imageInCache,"JavaScriptCore.framework") || 
+                     strstr(imageInCache,"GameKitServices.framework") || 
+                     strstr(imageInCache,"VectorKit")) {
                     continue;
                 }
                 NSMutableString *imageToNSString=[[NSMutableString alloc] initWithCString:imageInCache encoding:NSUTF8StringEncoding];
@@ -1535,7 +1546,19 @@ int main(int argc, char **argv, char **envp) {
                     char *imageInCache=(char*)_cacheData + fo;
                     //LOG_FILE_LINE;
                     // a few blacklisted frameworks that crash
-                    if ( strstr(imageInCache,"Powerlog") || strstr(imageInCache,"Parsec") || strstr(imageInCache,"WebKitLegacy") || strstr(imageInCache,"VisualVoicemail") || strstr(imageInCache,"/System/Library/Frameworks/CoreGraphics.framework/Resources/") || strstr(imageInCache,"JavaScriptCore.framework") || strstr(imageInCache,"GameKitServices.framework") || strstr(imageInCache,"VectorKit")){
+                    if ( strstr(imageInCache,"iWorkImport.framework") || 
+                         strstr(imageInCache,"TSReading") || 
+                         strstr(imageInCache,"TSStyles") || 
+                         strstr(imageInCache,"PencilPairingUI") || 
+                         strstr(imageInCache,"Powerlog") || 
+                         strstr(imageInCache,"Parsec") || 
+                         strstr(imageInCache,"WebKitLegacy") || 
+                         strstr(imageInCache,"VisualVoicemail") || 
+                         strstr(imageInCache,"/System/Library/Frameworks/CoreGraphics.framework/Resources/") || 
+                         strstr(imageInCache,"JavaScriptCore.framework") || 
+                         strstr(imageInCache,"GameKitServices.framework") || 
+                         strstr(imageInCache,"VectorKit")) {
+
                         continue;
                     }
                     //LOG_FILE_LINE;
