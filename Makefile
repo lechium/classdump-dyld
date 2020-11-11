@@ -1,13 +1,13 @@
 GO_EASY_ON_ME=1
 #TARGET = simulator:clang:11.0
 #TARGET = macosx
-#TARGET = appletv:clang::6.0
+TARGET = appletv:clang::6.0
 export SDKVERSION=11.2
 export ARCHS= arm64
 #export ARCHS=x86_64 
 include theos/makefiles/common.mk
-#THEOS_DEVICE_IP=guest-room.local
-THEOS_DEVICE_IP=192.168.0.39
+THEOS_DEVICE_IP=guest-room.local
+#THEOS_DEVICE_IP=192.168.0.39
 TOOL_NAME = classdump-dyld
 classdump-dyld_FILES = main.mm
 classdump-dyld_FRAMEWORKS = CoreFoundation Foundation

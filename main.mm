@@ -398,7 +398,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
             if (onlyOneClass){
                 tryWithLib=[tryWithLib stringByAppendingString:[NSString stringWithFormat:@" -j %@",onlyOneClass]];
             }
-            LOG_FILE_LINE;
+            //LOG_FILE_LINE;
             [allImagesProcessed addObject:[NSString stringWithCString:image encoding:2]];
             int(*_my_system)(const char *)=(int(*)(const char *))dlsym(RTLD_DEFAULT,"system");
             _my_system([tryWithLib UTF8String]);
@@ -668,7 +668,7 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
                 CDLog(@"%i: %i of %i", __LINE__, x, ivarOutCount);
                 NSString *ivarNameNS=[NSString stringWithCString:ivarName encoding:NSUTF8StringEncoding];
                 const char * ivarType=ivar_getTypeEncoding(currentIvar);
-                LOG_FILE_LINE;
+                //LOG_FILE_LINE;
                 NSString *ivarString = nil;
                 @try {
                     ivarString = [NSString stringWithCString:ivarType encoding:NSUTF8StringEncoding];
@@ -1533,12 +1533,12 @@ int main(int argc, char **argv, char **envp) {
                     uint64_t fo = *(uint64_t *)(_cacheData + curoffset + 24);
                     curoffset += 32;
                     char *imageInCache=(char*)_cacheData + fo;
-                    LOG_FILE_LINE;
+                    //LOG_FILE_LINE;
                     // a few blacklisted frameworks that crash
                     if ( strstr(imageInCache,"Powerlog") || strstr(imageInCache,"Parsec") || strstr(imageInCache,"WebKitLegacy") || strstr(imageInCache,"VisualVoicemail") || strstr(imageInCache,"/System/Library/Frameworks/CoreGraphics.framework/Resources/") || strstr(imageInCache,"JavaScriptCore.framework") || strstr(imageInCache,"GameKitServices.framework") || strstr(imageInCache,"VectorKit")){
                         continue;
                     }
-                    LOG_FILE_LINE;
+                    //LOG_FILE_LINE;
                     NSMutableString *imageToNSString=[[NSMutableString alloc] initWithCString:imageInCache encoding:NSUTF8StringEncoding];
                     [imageToNSString replaceOccurrencesOfString:@"///" withString:@"/" options:nil range:NSMakeRange(0, [imageToNSString length])];
                     [imageToNSString replaceOccurrencesOfString:@"//" withString:@"/" options:nil range:NSMakeRange(0, [imageToNSString length])];
@@ -1547,7 +1547,7 @@ int main(int argc, char **argv, char **envp) {
                     [imageToNSString release];
                     
                 }
-                LOG_FILE_LINE;
+                //LOG_FILE_LINE;
                 munmap(_cacheData, filesize);
             }
             close(fd);
