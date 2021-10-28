@@ -33,6 +33,7 @@
  */
 static BOOL inDebug=NO;
 static BOOL isIOS11=NO;
+static NSArray *userBlacklisted;
 
 #define CDLog(...) if (inDebug)NSLog(@"classdump-dyld : %@", [NSString stringWithFormat:__VA_ARGS__] )
 #define SIZE_LIMIT 1300000000
@@ -302,14 +303,19 @@ extern "C" int parseImage(char *image,BOOL writeToDisk,NSString *outputDir,BOOL 
         }
     }
     
-    
     void * ref=nil;
     BOOL opened=dlopen_preflight(image);
     const char *dlopenError=dlerror();
     if (opened){
         CDLog(@"Will dlopen %s",image);
-        ref=dlopen(image,  RTLD_LAZY );
-        CDLog(@"Did dlopen %s",image);
+        @try {
+            CDLog(@"try did not fail!");
+            ref=dlopen(image,  RTLD_LAZY );
+            CDLog(@"Did dlopen %s",image);
+        }
+        @catch (NSException *exception) {
+            NSLog(@"main.m: unable to load class from %s because of exception: %@", image, exception.reason);
+        }
     }
     else{
         
@@ -1226,6 +1232,7 @@ int main(int argc, char **argv, char **envp) {
         
         NSString *outputDir=nil;
         NSString *sourceDir=nil;
+        NSString *userBlFile=nil;
         
         // Check and apply arguments
         
@@ -1251,6 +1258,23 @@ int main(int argc, char **argv, char **envp) {
                 [argumentsToUse removeObject:arg];
             }
             
+            if ([arg isEqual:@"-B"]) {
+                CDLog(@"new blacklist science!");
+                int argIndex=[arguments indexOfObject:arg];
+                
+                if (argIndex==argCount-1){
+                    printHelp();
+                    exit(0);
+                }
+                
+                userBlFile=[arguments objectAtIndex:argIndex+1];
+                NSString *file = [currentDir stringByAppendingPathComponent:userBlFile];
+                NSString *rawFile = [NSString stringWithContentsOfFile:file encoding:NSUTF8StringEncoding error:nil];//[[NSString alloc] initWithContentsOfFile:file error:nil];
+                userBlacklisted = [rawFile componentsSeparatedByString:@"\n"];
+                CDLog(@"userBlacklisted: %@", userBlacklisted);
+                [argumentsToUse removeObject:arg];
+                [argumentsToUse removeObject:userBlFile];
+            }
             
             
             if ([arg isEqual:@"-o"]){
@@ -1499,7 +1523,7 @@ int main(int argc, char **argv, char **envp) {
             for (unsigned i = 0; i < _cacheHead->numlibs; ++ i) {
                 //LOG_FILE_LINE;
                 uint64_t fo = *(uint64_t *)(_cacheData + curoffset + 24);
-                CDLog(@"fo: %lu offset: %lu index: %i / %i", fo, curoffset, i, _cacheHead->numlibs);
+                CDLog(@"fo: %llu offset: %llu index: %i / %i", fo, curoffset, i, _cacheHead->numlibs);
                 curoffset += 32;
                 if (fo > filesize){
                     NSLog(@"stopping at lib index: %i", i);
@@ -1509,25 +1533,37 @@ int main(int argc, char **argv, char **envp) {
                 currentFo = fo;
                 char *imageInCache=(char*)_cacheData + fo;
                 // a few blacklisted frameworks that crash
-                if ( strstr(imageInCache,"iWorkImport.framework") || 
-                     strstr(imageInCache,"TSReading") || 
-                     strstr(imageInCache,"TSStyles") || 
-                     strstr(imageInCache,"PencilPairingUI") ||
-                     strstr(imageInCache,"Powerlog") || 
-                     strstr(imageInCache,"Parsec") || 
-                     strstr(imageInCache,"WebKitLegacy") || 
-                     strstr(imageInCache,"VisualVoicemail") || 
-                     strstr(imageInCache,"/System/Library/Frameworks/CoreGraphics.framework/Resources/") ||
-                     strstr(imageInCache,"JavaScriptCore.framework") || 
-                     strstr(imageInCache,"GameKitServices.framework") || 
-                     strstr(imageInCache,"VectorKit")) {
+                if ( strstr(imageInCache,"iWorkImport.framework") ||
+                    strstr(imageInCache,"TSReading") ||
+                    strstr(imageInCache,"TSStyles") ||
+                    strstr(imageInCache,"PencilPairingUI") ||
+                    strstr(imageInCache,"Powerlog") ||
+                    strstr(imageInCache,"Parsec") ||
+                    strstr(imageInCache,"WebKitLegacy") ||
+                    strstr(imageInCache,"VisualVoicemail") ||
+                    strstr(imageInCache,"/System/Library/Frameworks/CoreGraphics.framework/Resources/") ||
+                    strstr(imageInCache,"JavaScriptCore.framework") ||
+                    strstr(imageInCache,"GameKitServices.framework") ||
+                    strstr(imageInCache,"SpringBoardUI.framework") ||
+                    strstr(imageInCache,"CameraEffectsKit.framework") ||
+                    strstr(imageInCache,"VectorKit")) {
                     continue;
                 }
                 NSMutableString *imageToNSString=[[NSMutableString alloc] initWithCString:imageInCache encoding:NSUTF8StringEncoding];
                 [imageToNSString replaceOccurrencesOfString:@"///" withString:@"/" options:nil range:NSMakeRange(0, [imageToNSString length])];
                 [imageToNSString replaceOccurrencesOfString:@"//" withString:@"/" options:nil range:NSMakeRange(0, [imageToNSString length])];
                 CDLog(@"Current Image %@",imageToNSString);
-                parseImage((char *)[imageToNSString UTF8String],writeToDisk,outputDir,getSymbols,YES,YES,simpleHeader,skipAlreadyFound,skipApplications);
+                BOOL userDidBlacklist = false;
+                for (NSString *blItem in userBlacklisted){
+                    if ([imageToNSString containsString:blItem]){
+                        //NSLog(@"access denied! user blacklisted: %@", imageToNSString);
+                        printf(BOLDWHITE"ACCESS DENIED!"RESET" User blacklisted: %s\n", imageInCache);
+                        userDidBlacklist = true;
+                    }
+                }
+                if (!userDidBlacklist) {
+                    parseImage((char *)[imageToNSString UTF8String],writeToDisk,outputDir,getSymbols,YES,YES,simpleHeader,skipAlreadyFound,skipApplications);
+                }
                 [imageToNSString release];
                 
             }
@@ -1546,19 +1582,19 @@ int main(int argc, char **argv, char **envp) {
                     char *imageInCache=(char*)_cacheData + fo;
                     //LOG_FILE_LINE;
                     // a few blacklisted frameworks that crash
-                    if ( strstr(imageInCache,"iWorkImport.framework") || 
-                         strstr(imageInCache,"TSReading") || 
-                         strstr(imageInCache,"TSStyles") || 
-                         strstr(imageInCache,"PencilPairingUI") || 
-                         strstr(imageInCache,"Powerlog") || 
-                         strstr(imageInCache,"Parsec") || 
-                         strstr(imageInCache,"WebKitLegacy") || 
-                         strstr(imageInCache,"VisualVoicemail") || 
-                         strstr(imageInCache,"/System/Library/Frameworks/CoreGraphics.framework/Resources/") || 
-                         strstr(imageInCache,"JavaScriptCore.framework") || 
-                         strstr(imageInCache,"GameKitServices.framework") || 
-                         strstr(imageInCache,"VectorKit")) {
-
+                    if ( strstr(imageInCache,"iWorkImport.framework") ||
+                        strstr(imageInCache,"TSReading") ||
+                        strstr(imageInCache,"TSStyles") ||
+                        strstr(imageInCache,"PencilPairingUI") ||
+                        strstr(imageInCache,"Powerlog") ||
+                        strstr(imageInCache,"Parsec") ||
+                        strstr(imageInCache,"WebKitLegacy") ||
+                        strstr(imageInCache,"VisualVoicemail") ||
+                        strstr(imageInCache,"/System/Library/Frameworks/CoreGraphics.framework/Resources/") ||
+                        strstr(imageInCache,"JavaScriptCore.framework") ||
+                        strstr(imageInCache,"GameKitServices.framework") ||
+                        strstr(imageInCache,"VectorKit")) {
+                        
                         continue;
                     }
                     //LOG_FILE_LINE;

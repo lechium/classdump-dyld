@@ -1,6 +1,32 @@
 classdump-dyld
 ==============
 
+lechium's notes
+------------
+
+I have been periodically updating my fork of this project to work on newer iOS/tvOS versions and to be more robust / crash-free. Most recently I added the new -B flag,
+using this flag will allow you to choose a line delimited text file with frameworks you want to skip over due to crashing. This makes it possible to exclude problematic
+frameworks without re-building over and over again. Example usage:
+
+```
+classdump-dyld -c -s -o 135 -B blacklist
+```
+
+where 'blacklist' is a text file that simply has the entry 'SpringBoardUI.framework'. In addition there are different Make/control file(s) that have 'tvos' appended to them that
+can be renamed to build the tvOS versions of this project.
+
+One major note: any time you want to make changes to this project and be /certain/ they will be propagated, run this step between each build:
+
+```
+rm -rf .theos/obj
+```
+The reason this is necessary is due to the bizarre decision to #include m files to get them to build. Make doesn't properly detect changes to these files, which can lead to a maddening
+debugging cycle of adding tons of logs to figure out if your changes are actually make it in.
+
+Last but not least, I finally committed the Makefile changes that don't expect a local version of theos to exist in the root project folder. For more information on theos go to its repo.
+
+---
+
 Major update
 ------------
 
@@ -101,6 +127,7 @@ It also works on a Mac for dyld_shared_cache and some libraries
 			-D   Enable debug printing for troubleshooting errors
 			-e   dpopen 32Bit executables instead of injecting them (iOS 5+, use if defaults fail.This will skip any 64bit executable) 
 			-a   In a recursive dump, include 'Applications' directories (skipped by default)
+              -B   <sourcepath> a text file that includes line delimited list of frameworks to skip
 		Examples:
     		Example 1: classdump-dyld -o outdir /System/Library/Frameworks/UIKit.framework
     		Example 2: classdump-dyld -o outdir /usr/libexec/backboardd

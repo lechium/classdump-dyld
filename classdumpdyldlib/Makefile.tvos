@@ -1,5 +1,5 @@
-TARGET = iphone:clang::11.0
-export ARCHS= arm64 arm64e
+TARGET = appletv:clang::11.0
+export ARCHS= arm64 
 include  $(THEOS)/makefiles/common.mk
 LIBRARY_NAME = libclassdumpdyld
 libclassdumpdyld_FILES = classdumpdyldlib.mm
